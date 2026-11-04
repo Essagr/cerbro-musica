@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>La Música en el Cerebro - Juego Educativo ESO</title>
+    <style>
+        :root {
+            --bg-dark: #0b1326;
+            --bg-card: #152238;
+            --bg-card-hover: #1c2d4a;
+            --accent-cyan: #00f2fe;
+            --accent-blue: #4facfe;
+            --accent-gold: #ffd700;
+            --accent-green: #00e676;
+            --accent-red: #ff5252;
+            --text-main: #f0f4f8;
+            --text-muted: #8a99ad;
+            --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        /* Container & Layout */
+        .app-container {
+            width: 100%;
+            max-width: 600px;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            background: radial-gradient(circle at top center, #1a2c4e 0%, var(--bg-dark) 70%);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+            overflow-y: auto;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            animation: fadeIn 0.3s ease-in-out forwards;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography & Badges */
+        h1 {
+            font-size: 1.8rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: var(--accent-cyan);
+            margin-bottom: 12px;
+        }
+
+        p {
+            line-height: 1.5;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        .tag {
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            color: var(--accent-cyan);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Welcome Screen */
+        .welcome-hero {
+            text-align: center;
+            margin: auto 0;
+        }
+
+        .welcome-icon {
+            font-size: 4.5rem;
+            margin-bottom: 15px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .info-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin: 15px 0;
+            text-align: left;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .info-card ul {
+            list-style: none;
+            margin-top: 8px;
+        }
+
+        .info-card li {
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Buttons */
+        .btn {
+            min-height: 60px;
+            width: 100%;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            color: #0b1326;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: #0b1326;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+            filter: brightness(0.9);
+        }
+
+        /* Game Header & Stats */
+        .game-header {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-box {
+            background: var(--bg-card);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .streak-badge {
+            color: var(--accent-gold);
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            transition: width 0.4s ease;
+        }
+
+        /* Question & Options */
+        .question-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .surprise-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255, 215, 0, 0.15);
+            border: 1px solid var(--accent-gold);
+            color: var(--accent-gold);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .option-btn {
+            min-height: 60px;
+            background: var(--bg-card);
+            border: 2px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            color: var(--text-main);
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .option-btn:not(:disabled):active {
+            transform: scale(0.98);
+            background: var(--bg-card-hover);
+        }
+
+        .option-key {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            color: var(--accent-cyan);
+        }
+
+        .option-btn.correct {
+            background: rgba(0, 230, 118, 0.15) !important;
+            border-color: var(--accent-green) !important;
+            color: #fff;
+        }
+
+        .option-btn.correct .option-key {
+            background: var(--accent-green);
+            color: #000;
+        }
+
+        .option-btn.incorrect {
+            background: rgba(255, 82, 82, 0.15) !important;
+            border-color: var(--accent-red) !important;
+            color: #fff;
+        }
+
+        .option-btn.incorrect .option-key {
+            background: var(--accent-red);
+            color: #fff;
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        .option-btn.hidden-5050 {
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Feedback Panel */
+        .feedback-panel {
+            display: none;
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 15px;
+            border-left: 5px solid var(--accent-cyan);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feedback-panel.correct {
+            border-left-color: var(--accent-green);
+            background: rgba(0, 230, 118, 0.05);
+        }
+
+        .feedback-panel.incorrect {
+            border-left-color: var(--accent-red);
+            background: rgba(255, 82, 82, 0.05);
+        }
+
+        .feedback-header {
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feedback-panel.correct .feedback-header { color: var(--accent-green); }
+        .feedback-panel.incorrect .feedback-header { color: var(--accent-red); }
+
+        .explanation-text {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            line-height: 1.4;
+            margin-top: 8px;
+        }
+
+        .joke-card {
+            margin-top: 12px;
+            padding: 10px;
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px dashed var(--accent-gold);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+        }
+
+        /* Bottom Fixed Container */
+        .bottom-action-area {
+            margin-top: auto;
+            padding-top: 10px;
+            position: sticky;
+            bottom: 0;
+            background: linear-gradient(to top, var(--bg-dark) 80%, transparent);
+        }
+
+        /* Modal / Surprise Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 19, 38, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 2px solid var(--accent-gold);
+            border-radius: 24px;
+            padding: 25px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-icon {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+        }
+
+        .modal-title {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+
+        .modal-desc {
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            color: var(--text-main);
+        }
+
+        /* Results Screen */
+        .results-hero {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .score-big {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 14px;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-val {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--accent-cyan);
+        }
+
+        .stat-lbl {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .feedback-badge {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 242, 254, 0.2);
+        }
+
+        canvas#confetti-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        em {
+            font-style: italic;
+            color: var(--accent-cyan);
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div class="app-container">
+    
+    <!-- PANTALLA BIENVENIDA -->
+    <section id="screen-welcome" class="screen active">
+        <div class="welcome-hero">
+            <div class="welcome-icon">🧠🎵</div>
+            <h1>La Música en el Cerebro</h1>
+            <p>Desafío Neuroeducativo para ESO</p>
+            
+            <div class="tag-container">
+                <span class="tag">🧠 Neurociencia</span>
+                <span class="tag">🎵 Música</span>
+                <span class="tag">⚡ ESO</span>
+                <span class="tag">🔮 Sorpresas</span>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <strong> Reglas de la partida:</strong>
+            <ul>
+                <li> Puntúa +100 por respuesta correcta.</li>
+                <li> Mantén tu racha para multiplicar puntos hasta ×3.</li>
+                <li> Respuestas y opciones aleatorias en cada juego.</li>
+                <li> Activa sorpresas: Escudos, 50/50, Puntos Dobles y Humor.</li>
+                <li> Usa el teclado (teclas A, B, C, D y ENTER).</li>
+            </ul>
+        </div>
+
+        <div class="bottom-action-area">
+            <button class="btn btn-primary" onclick="startGame()">¡Iniciar Desafío!</button>
+        </div>
+    </section>
+
+    <!-- PANTALLA JUEGO -->
+    <section id="screen-game" class="screen">
+        <div class="game-header">
+            <div class="top-bar">
+                <div class="stat-box">
+                    <span id="q-counter">1/30</span>
+                </div>
+                <div class="stat-box streak-badge">
+                    🔥 Racha: <span id="streak-val">x1</span>
+                </div>
+                <div class="stat-box">
+                    💎 <span id="score-val">0</span> pts
+                </div>
+            </div>
+            <div class="progress-bar-bg">
+                <div id="progress-fill" class="progress-bar-fill"></div>
+            </div>
+        </div>
+
+        <div id="surprise-tag-container"></div>
+
+        <div class="question-card">
+            <div id="question-text" class="question-text">Cargando pregunta...</div>
+        </div>
+
+        <div id="options-container" class="options-grid">
+            <!-- Opciones dinámicas -->
+        </div>
+
+        <div id="feedback-panel" class="feedback-panel">
+            <div id="feedback-header" class="feedback-header"></div>
+            <div id="explanation-text" class="explanation-text"></div>
+            <div id="joke-container"></div>
+        </div>
+
+        <div class="bottom-action-area">
+            <button id="btn-next" class="btn btn-primary" style="display: none;" onclick="nextQuestion()">Siguiente Pregunta ➔</button>
+        </div>
+    </section>
+
+    <!-- PANTALLA FINAL -->
+    <section id="screen-results" class="screen">
+        <div class="results-hero">
+            <div style="font-size: 3.5rem; margin-bottom: 10px;">🏆</div>
+            <h2>¡Desafío Completado!</h2>
+            <div id="final-score" class="score-big">0</div>
+            <p style="color: var(--text-muted);">Puntuación Total</p>
+        </div>
+
+        <div id="final-badge" class="feedback-badge">
+            Cargando rendimiento...
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div id="stat-accuracy" class="stat-val">0%</div>
+                <div class="stat-lbl">Aciertos</div>
+            </div>
+            <div class="stat-card">
+                <div id="stat-count" class="stat-val">0/30</div>
+                <div class="stat-lbl">Correctas</div>
+            </div>
+            <div class="stat-card">
+                <div id="stat-streak" class="stat-val">0</div>
+                <div class="stat-lbl">Mejor Racha</div>
+            </div>
+            <div class="stat-card">
+                <div id="stat-surprises" class="stat-val">0</div>
+                <div class="stat-lbl">Sorpresas</div>
+            </div>
+        </div>
+
+        <div class="bottom-action-area">
+            <button class="btn btn-primary" onclick="restartGame()">⚡ Reintentar Desafío</button>
+        </div>
+    </section>
+
+</div>
+
+<!-- MODAL DE SORPRESAS -->
+<div id="surprise-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div id="modal-icon" class="modal-icon">🎁</div>
+        <div id="modal-title" class="modal-title">¡Sorpresa!</div>
+        <div id="modal-desc" class="modal-desc">Has activado un evento especial.</div>
+        <button class="btn btn-primary" onclick="closeModal()">¡Vamos!</button>
+    </div>
+</div>
+
+<script>
+    // BANCO DE PREGUNTAS COMPLETO (30 PREGUNTAS)
+    const rawQuestions = [
+        {
+            q: "¿Qué lóbulo cerebral procesa principalmente la corteza auditiva primaria encargada de percibir los sonidos musicales?",
+            options: ["Lóbulo frontal.", "Lóbulo temporal.", "Lóbulo occipital.", "Lóbulo parietal."],
+            correct: "Lóbulo temporal.",
+            exp: "El lóbulo temporal alberga la corteza auditiva primaria, fundamental para procesar la frecuencia, el tono y la melodía de los sonidos. El lóbulo occipital se encarga de la visión y el parietal del procesamiento sensorial espacial y táctil."
+        },
+        {
+            q: "¿Qué neurotransmisor se libera principalmente en el cerebro cuando escuchamos música que nos genera placer y emoción?",
+            options: ["Melatonina.", "Adrenalina.", "Dopamina.", "Insulina."],
+            correct: "Dopamina.",
+            exp: "La dopamina es la sustancia química vinculada al sistema de recompensa del cerebro y se libera en situaciones de placer, como al escuchar una canción placentera. La melatonina regula el sueño y la insulina el azúcar en sangre."
+        },
+        {
+            q: "La estructura cerebral encargada de conectar ambos hemisferios y que suele ser más gruesa en los músicos se llama:",
+            options: ["Cuerpo calloso.", "Amígdala.", "Hipocampo.", "Cerebelo."],
+            correct: "Cuerpo calloso.",
+            exp: "El cuerpo calloso es un haz de fibras nerviosas que comunica el hemisferio izquierdo y derecho. En los músicos, el entrenamiento constante exige una rápida transmisión entre ambos lados, haciendo que esta estructura esté hiperdesarrollada."
+        },
+        {
+            q: "¿Qué parte del encéfalo coordina principalmente la precisión motora fina requerida al tocar un instrumento muscularmente complejo como el piano?",
+            options: ["Amígdala.", "Cerebelo.", "Hipotálamo.", "Bulbo raquídeo."],
+            correct: "Cerebelo.",
+            exp: "El cerebelo gestiona la coordinación motora, el equilibrio y el tempo temporal del movimiento muscular preciso. La amígdala gestiona respuestas emocionales e hipotálamo regula funciones corporales vitales internas."
+        },
+        {
+            q: "El ritmo musical activa intensamente áreas motoras del cerebro. ¿Cómo se denomina la capacidad natural de movernos automáticamente al compás de la música?",
+            options: ["Sinestesia.", "Enganchamiento rítmico (Entrainment).", "Amnesia disociativa.", "Tono absoluto."],
+            correct: "Enganchamiento rítmico (Entrainment).",
+            exp: "El enganchamiento o 'entrainment' rítmico es la sincronización natural entre el sistema motor y los impulsos sonoros periódicos. Ocurre al marcar el ritmo con el pie o bailar casi de forma involuntaria."
+        },
+        {
+            q: "¿Qué estructura del sistema límbico es clave en la consolidación de la memoria a largo plazo asociada a recuerdos musicales de la infancia?",
+            options: ["Hipocampo.", "Área de Broca.", "Corteza visual.", "Tálamo óptico."],
+            correct: "Hipocampo.",
+            exp: "El hipocampo forma y evoca memorias contextuales y episódicas. Al vincularse fuertemente con las emociones musicales, la memoria musical suele conservarse mejor que otros recuerdos en la vejez."
+        },
+        {
+            q: "La capacidad del cerebro para modificar sus conexiones neuronales mediante el aprendizaje continuo de un instrumento se conoce como:",
+            options: ["Neuroplasticidad.", "Neurodegeneración.", "Amnesia retrógrada.", "Transducción."],
+            correct: "Neuroplasticidad.",
+            exp: "La neuroplasticidad es la propiedad adaptativa del sistema nervioso para reorganizar sus redes neuronales en respuesta a la experiencia y la práctica regular de habilidades como la música."
+        },
+        {
+            q: "La amígdala cerebral desempeña un rol fundamental en la respuesta emotiva ante la música. ¿Con qué tipo de emociones se relaciona clásicamente?",
+            options: ["Solamente el cálculo matemático.", "Procesamiento emocional, especial mención al miedo y la tensión sonora.", "Regulación del apetito.", "Control directo de los movimientos del ojo."],
+            correct: "Procesamiento emocional, especial mención al miedo y la tensión sonora.",
+            exp: "La amígdala procesa las emociones primarias y de alerta (como el miedo en bandas sonoras de terror o la tensión armónica). Trabaja activamente ante estímulos sonoros intensos."
+        },
+        {
+            q: "¿Qué área del hemisferio izquierdo (asociada al lenguaje) se activa al interpretar el significado y la sintaxis del lenguaje musical?",
+            options: ["Área de Broca.", "Lóbulo occipital inferior.", "Ganglios basales auditivos.", "Núcleo caudado posterior."],
+            correct: "Área de Broca.",
+            exp: "El área de Broca interviene en la producción del habla y el análisis sintáctico. Se ha demostrado que el cerebro procesa la estructura del lenguaje musical de forma muy semejante a las frases lingüísticas."
+        },
+        {
+            q: "Al escuchar música triste o melancólica, algunas personas sienten consuelo debido a la liberación de una hormona calmante llamada:",
+            options: ["Prolactina.", "Adrenalina.", "Cortisol puro.", "Tiroxina."],
+            correct: "Prolactina.",
+            exp: "La prolactina se libera en situaciones de dolor o tristeza para proporcionar una sensación de alivio y consuelo emocional, explicando por qué la música triste produce frecuentemente agrado catártico."
+        },
+        {
+            q: "¿Cómo se llama la condición neurológica en la que la persona es incapaz de percibir el tono o reconocer melodías familiares?",
+            options: ["Amusia.", "Afasia de Broca.", "Acúfeno.", "Dislexia."],
+            correct: "Amusia.",
+            exp: "La amusia es un déficit del procesamiento musical que impide distinguir notas o recordar canciones populares, a pesar de tener una audición físicamente normal."
+        },
+        {
+            q: "La habilidad neurológica muy poco común de identificar una nota musical exacta sin ninguna referencia previa se denomina:",
+            options: ["Oído relativo.", "Oído absoluto (o tono absoluto).", "Hipoacusia.", "Resonancia magnética."],
+            correct: "Oído absoluto (o tono absoluto).",
+            exp: "El oído absoluto permite nombrar cualquier nota producida por un sonido aislado sin comparar con otra. Requiere predisposición neurológica y formación temprana."
+        },
+        {
+            q: "El mito del 'Efecto Mozart' afirmaba erróneamente que escuchar música clásica aumentaba de forma permanente el cociente intelectual. ¿Qué produce realmente?",
+            options: ["Un aumento permanente de 20 puntos de CI.", "Una mejora temporal del estado de ánimo y la atención espacial.", "La curación inmediata de enfermedades físicas.", "La regeneración automática de neuronas perdidas."],
+            correct: "Una mejora temporal del estado de ánimo y la atención espacial.",
+            exp: "Los estudios científicos demostraron que escuchar música que nos gusta activa la atención y mejora el ánimo de forma pasajera, no elevando la inteligencia general del individuo de por vida."
+        },
+        {
+            q: "¿Qué estructura cerebral del sistema de recompensa se activa justo en el momento cumbre ('el escalofrío') de una canción?",
+            options: ["Núcleo accumbens.", "Cristalino.", "Bulbo olfativo.", "Glándula tiroides."],
+            correct: "Núcleo accumbens.",
+            exp: "El núcleo accumbens forma parte del circuito de recompensa del cerebro y libera dopamina masivamente ante estímulos gratificantes e intensos como la culminación de un fragmento musical memorable."
+        },
+        {
+            q: "Tocar la batería o la guitarra requiere planificar secuencias de movimiento complejas. ¿En qué zona del cerebro se origina esta planificación?",
+            options: ["Corteza motora primaria y premotora.", "Retina auditiva.", "Caracol coclear.", "Lóbulo parietal posterior primario."],
+            correct: "Corteza motora primaria y premotora.",
+            exp: "La corteza premotora planifica las secuencias táctiles o motoras, y la corteza motora envía la señal a los músculos para ejecutar la interpretación instrumental."
+        },
+        {
+            q: "Las neuronas espejo se activan tanto al ejecutar una acción como al observar o escuchar a otro realizarla. En la música facilitan principalmente:",
+            options: ["La percepción del color en las notas.", "La empatía, la imitación y la sincronización con otros músicos.", "El dolor en el oído interno.", "La digestión alimentaria durante un concierto."],
+            correct: "La empatía, la imitación y la sincronización con otros músicos.",
+            exp: "Las neuronas espejo nos permiten 'sentir' los movimientos o emociones que la otra persona transmite, clave para la interpretación colectiva e imitación en el aprendizaje musical."
+        },
+        {
+            q: "¿Qué diferencia neurológica destaca al comparar la lectura de texto alfabético con la lectura de una partitura musical?",
+            options: ["Leer partituras activa únicamente la vista sin usar el oído.", "Leer partituras integra simultáneamente información visual, espacial, auditiva y motora.", "La lectura musical no usa el hemisferio izquierdo.", "Las partituras solo se procesan en el tronco del encéfalo."],
+            correct: "Leer partituras integra simultáneamente información visual, espacial, auditiva y motora.",
+            exp: "Leer música exige que el cerebro traduzca símbolos visuales (notas) en altura espacial, tiempo rítmico, expectativa auditiva y ejecución motora inmediata de los dedos."
+        },
+        {
+            q: "¿Por qué las canciones pegadizas o 'gusanos de oído' (earworms) se repiten continuamente en nuestra mente?",
+            options: ["Por un fallo grave e irreversible del oído interno.", "Por la activación involuntaria del bucle fonológico en la memoria de trabajo.", "Debido a la falta de oxígeno en el lóbulo frontal.", "Por la hipnosis provocada por el tono de voz."],
+            correct: "Por la activación involuntaria del bucle fonológico en la memoria de trabajo.",
+            exp: "El bucle fonológico es un componente de la memoria que repite patrones auditivos sencillos o altamente repetitivos de forma cíclica sin esfuerzo consciente."
+        },
+        {
+            q: "La disciplina terapéutica que utiliza la música y sus elementos para mejorar el bienestar físico, mental y emocional se denomina:",
+            options: ["Musicoterapia.", "Musicología pura.", "Acústica arquitectónica.", "Foniatría quirúrgica."],
+            correct: "Musicoterapia.",
+            exp: "La musicoterapia aplica la música de manera estructurada con fines de rehabilitación cognitiva, motora y apoyo emocional clínico."
+        },
+        {
+            q: "¿Qué fenómeno perceptivo-neurológico experimenta alguien que 've colores' al escuchar determinadas notas musicales?",
+            options: ["Sinestesia.", "Presbiacusia.", "Tinnitus.", "Parálisis del sueño."],
+            correct: "Sinestesia.",
+            exp: "La sinestesia es el cruce involuntario de vías sensoriales en el cerebro, donde la estimulación de un sentido (como el oído) provoca experiencias automáticas en otro (la vista de colores)."
+        },
+        {
+            q: "Escuchar música relajante durante una sesión de estudio puede reducir la tensión fisiológica disminuyendo la hormona del estrés llamada:",
+            options: ["Cortisol.", "Melatonina.", "Serotonina pura.", "Insulina."],
+            correct: "Cortisol.",
+            exp: "El cortisol es la principal hormona liberada ante el estrés. La música con ritmo pausado y armónico ayuda a descender los niveles sanguíneos de cortisol y la presión arterial."
+        },
+        {
+            q: "¿Qué rol cumple la corteza prefrontal cuando escuchamos una pieza instrumental compleja?",
+            options: ["Transmitir el sonido por el nervio óptico.", "Gestionar la atención, anticipar patrones armónicos y analizar la estructura.", "Controlar la frecuencia cardíaca básica.", "Generar los glóbulos rojos del cuerpo."],
+            correct: "Gestionar la atención, anticipar patrones armónicos y analizar la estructura.",
+            exp: "La corteza prefrontal se ocupa de las funciones ejecutivas: planificar, prestar atención focalizada e inferir la lógica o predicciones de lo que va a sonar."
+        },
+        {
+            q: "¿Qué órgano sensorial periférico convierte las ondas sonoras en impulsos eléctricos enviándolos al cerebro mediante el nervio auditivo?",
+            options: ["Córnea.", "Cóclea (o caracol).", "Pituitaria.", "Yeyuno."],
+            correct: "Cóclea (o caracol).",
+            exp: "La cóclea se ubica en el oído interno y posee cilios diminutos que convierten las vibraciones mecánicas del sonido en impulsos nerviosos que viajan hacia el encéfalo."
+        },
+        {
+            q: "¿Por qué la música es una herramienta eficaz en pacientes con Alzheimer avanzado?",
+            options: ["Porque elimina completamente la enfermedad en pocos días.", "Porque la memoria musical se conserva en áreas cerebrales más resistentes al deterioro.", "Porque sustituye la necesidad de medicación médica.", "Porque desactiva la corteza auditiva por completo."],
+            correct: "Porque la memoria musical se conserva en áreas cerebrales más resistentes al deterioro.",
+            exp: "Las redes neuronales ligadas a la memoria musical y la emoción suelen mantenerse preservadas a pesar de la atrofia del Alzheimer, permitiendo reconectar con recuerdos."
+        },
+        {
+            q: "La diferencia de timbre entre un violín y una flauta tocando la misma nota es procesada principalmente por:",
+            options: ["Las áreas asociativas de la corteza auditiva.", "El nervio óptico posterior.", "El estómago.", "El sistema muscular periférico."],
+            correct: "Las áreas asociativas de la corteza auditiva.",
+            exp: "Mientras la frecuencia determina la nota, la forma de la onda (timbre) es discriminada minuciosamente por las áreas secundarias de la corteza auditiva."
+        },
+        {
+            q: "En el desarrollo del cerebro adolescente, la música de ritmo rápido durante la actividad física ayuda a:",
+            options: ["Inducir el sueño profundo inmediatamente.", "Aumentar el rendimiento motor reduciendo la percepción de fatiga.", "Perder el sentido del equilibrio.", "Anular la coordinación de las extremidades."],
+            correct: "Aumentar el rendimiento motor reduciendo la percepción de fatiga.",
+            exp: "El ritmo rápido distrae al cerebro de las señales de cansancio corporal y sincroniza la cadencia del movimiento motor (pasos, pedaladas), optimizando el rendimiento."
+        },
+        {
+            q: "¿Qué hemisferio cerebral ha mostrado mayor dominancia tradicional en la percepción global del contorno melódico y la emoción tímbrica?",
+            options: ["Hemisferio derecho.", "Hemisferio izquierdo.", "Cerebelo izquierdo inferior.", "Tronco encefálico puro."],
+            correct: "Hemisferio derecho.",
+            exp: "Aunque procesar música requiere ambos hemisferios, el derecho suele especializarse en aspectos holísticos, timbre y expresividad emocional del sonido."
+        },
+        {
+            q: "La práctica constante de un instrumento musical desde temprana edad incrementa el volumen de la materia gris en:",
+            options: ["Exclusivamente la zona visual posterior.", "Las áreas auditivas, motoras y visuoespaciales.", "Las glándulas digestivas.", "Ninguna parte del cuerpo humano."],
+            correct: "Las áreas auditivas, motoras y visuoespaciales.",
+            exp: "Dado que tocar exige coordinar vista, oído y manos, estas tres regiones cerebrales aumentan su densidad de neuronas y conexiones debido al uso intenso."
+        },
+        {
+            q: "¿Qué efecto tiene cantar en coro a nivel neurológico y biológico en un grupo de estudiantes?",
+            options: ["Sincroniza ritmos cardíacos y libera oxitocina promoviendo cohesión social.", "Causa aislamiento social involuntario.", "Reduce a cero los niveles de atención.", "Impide que el cerebro reconozca ritmos."],
+            correct: "Sincroniza ritmos cardíacos y libera oxitocina promoviendo cohesión social.",
+            exp: "Cantar juntos regula la respiración colectiva y libera oxitocina (hormona del vínculo), generando un sentimiento de confianza y comunidad en el grupo."
+        },
+        {
+            q: "Cuando anticipamos la resolución armónica de un acorde en una obra musical, nuestro cerebro está poniendo a prueba:",
+            options: ["Modelos de predicción y expectativa neurológica.", "El sentido del gusto y del olfato.", "La visión periférica de lejos.", "La memoria muscular del tobillo."],
+            correct: "Modelos de predicción y expectativa neurológica.",
+            exp: "El cerebro es una 'máquina de predicción'. Al escuchar música, calcula qué nota o acorde debería sonar a continuación según la cultura musical que ha aprendido previamente."
+        }
+    ];
+
+    // COLECCIÓN DE CHISTES EDUCATIVOS
+    const jokesList = [
+        "🧠 *Pausa de neuro-humor:* ¿Qué le dice una neurona a otra cuando entra la música de flauta de 1º ESO? —'¡Prepárate para la sinopsis!'",
+        "🎼 *Chiste de aula:* ¿Por qué la profesora de música fue a la farmacia? —Porque tenía dolor de cabeza por culpa del bucle fonológico del vecino.",
+        "🎹 *Humor musical:* Mi cerebro en el examen de física: 404 Not Found. Mi cerebro a las 3:00 AM: *Repitiendo la melodía del Mercadona en bucle.*",
+        "🥁 *Humor de pasillo:* ¿Qué hace el cerebelo cuando suena un solo de batería? —¡Mover los pies antes de que te des cuenta!",
+        "🎻 *Vida escolar:* Si tocar un instrumento aumenta la materia gris... ¿por qué mi compañero sigue intentando soplar el examen para ver si aprueba?",
+        "🧠 *Curiosidad:* ¿Por qué los músicos tienen un cuerpo calloso gigante? —Para pasarse las partituras de un hemisferio a otro a velocidad 5G.",
+        "🎵 *Chiste suave:* ¿Qué neurotransmisor se libera cuando el timbre anuncia el recreo? —¡Dopamina en niveles de concierto de estadio!",
+        "⚡ *Reflexión de aula:* Dicen que la música calma a las fieras... pero claramente no aplicaron ese estudio a la clase de 3º de la ESO a última hora del viernes.",
+        "🎧 *Pausa cómica:* Si escucho música triste me sube la prolactina... si escucho la voz de mi profesor pidiendo la tarea, ¡me sube el cortisol!",
+        "🎺 *Último acorde:* Mi cerebro intentando aprender sinestesia para ver las notas de colores y así aprobar el examen sin estudiar."
+    ];
+
+    // ESTADO DEL JUEGO
+    let questions = [];
+    let currentQIndex = 0;
+    let score = 0;
+    let streak = 0;
+    let maxStreak = 0;
+    let correctAnswersCount = 0;
+    let surprisesEncountered = 0;
+    let activeSurprise = null; // 'double', 'shield', '5050'
+    let shieldActive = false;
+    let usedJokes = [];
+    let canAnswer = false;
+
+    // ALGORITMO FISHER-YATES
+    function shuffleArray(array) {
+        const arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    // PARSER DE TEXTO (CURSIVAS CON *)
+    function parseFormatting(text) {
+        return text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    }
+
+    // CONTROL DE PANTALLAS
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    // INICIAR JUEGO
+    function startGame() {
+        // Mezclar preguntas
+        questions = shuffleArray(rawQuestions).map(qItem => {
+            const shuffledOpts = shuffleArray(qItem.options);
+            return {
+                ...qItem,
+                options: shuffledOpts
+            };
+        });
+
+        currentQIndex = 0;
+        score = 0;
+        streak = 0;
+        maxStreak = 0;
+        correctAnswersCount = 0;
+        surprisesEncountered = 0;
+        usedJokes = [];
+
+        updateStatsDisplay();
+        showScreen('screen-game');
+        loadQuestion();
+    }
+
+    // CARGAR PREGUNTA
+    function loadQuestion() {
+        canAnswer = true;
+        activeSurprise = null;
+        document.getElementById('feedback-panel').style.display = 'none';
+        document.getElementById('btn-next').style.display = 'none';
+        document.getElementById('joke-container').innerHTML = '';
+        document.getElementById('surprise-tag-container').innerHTML = '';
+
+        const current = questions[currentQIndex];
+        
+        // Actualizar header
+        document.getElementById('q-counter').innerText = `${currentQIndex + 1}/${questions.length}`;
+        const progressPercent = ((currentQIndex) / questions.length) * 100;
+        document.getElementById('progress-fill').style.width = `${progressPercent}%`;
+
+        // Texto pregunta
+        document.getElementById('question-text').innerHTML = parseFormatting(current.q);
+
+        // Cargar Opciones
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+
+        const keys = ['A', 'B', 'C', 'D'];
+        current.options.forEach((optText, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.dataset.index = index;
+            btn.onclick = () => selectOption(optText, btn);
+            btn.innerHTML = `
+                <div class="option-key">${keys[index]}</div>
+                <div class="option-text">${parseFormatting(optText)}</div>
+            `;
+            optionsContainer.appendChild(btn);
+        });
+
+        // EVALUAR SORPRESA PRE-PREGUNTA
+        checkPreQuestionSurprise();
+    }
+
+    // SORPRESAS PRE-PREGUNTA (≈25% prob, no en primeras 2, no consecutivas)
+    function checkPreQuestionSurprise() {
+        if (currentQIndex < 2) return;
+        
+        const roll = Math.random();
+        if (roll < 0.25) {
+            surprisesEncountered++;
+            const types = ['double', 'shield', '5050'];
+            const selectedType = types[Math.floor(Math.random() * types.length)];
+            activeSurprise = selectedType;
+
+            let title = '', desc = '', icon = '', tag = '';
+
+            if (selectedType === 'double') {
+                title = '⚡ ¡Pregunta Doble!';
+                desc = '¡Si aciertas esta pregunta obtendrás el DOCTORADO de puntos (x2)!';
+                icon = '⚡';
+                tag = '⚡ Puntos Dobles Activos';
+            } else if (selectedType === 'shield') {
+                title = '🛡️ ¡Escudo de Racha!';
+                desc = '¡Tranquilidad! Si fallas esta pregunta, tu racha activa no se perderá.';
+                icon = '🛡️';
+                tag = '🛡️ Escudo de Racha Activo';
+                shieldActive = true;
+            } else if (selectedType === '5050') {
+                title = '🎁 ¡Comodín 50/50!';
+                desc = '¡Genial! Hemos eliminado automáticamente dos opciones incorrectas.';
+                icon = '🎁';
+                tag = '🎁 Comodín 50/50 Aplicado';
+            }
+
+            showModal(icon, title, desc, () => {
+                if (selectedType === '5050') apply5050();
+            });
+
+            document.getElementById('surprise-tag-container').innerHTML = `
+                <div class="surprise-indicator">${tag}</div>
+            `;
+        }
+    }
+
+    // COMODÍN 50/50
+    function apply5050() {
+        const current = questions[currentQIndex];
+        const buttons = Array.from(document.querySelectorAll('.option-btn'));
+        let removedCount = 0;
+
+        for (let btn of buttons) {
+            const optText = current.options[parseInt(btn.dataset.index)];
+            if (optText !== current.correct && removedCount < 2) {
+                btn.classList.add('hidden-5050');
+                removedCount++;
+            }
+        }
+    }
+
+    // MOSTRAR MODAL
+    function showModal(icon, title, desc, onCloseCallback) {
+        document.getElementById('modal-icon').innerText = icon;
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-desc').innerText = desc;
+        const modal = document.getElementById('surprise-modal');
+        modal.classList.add('active');
+        modal.dataset.onClose = onCloseCallback ? "true" : "false";
+        window.modalCallback = onCloseCallback;
+    }
+
+    function closeModal() {
+        document.getElementById('surprise-modal').classList.remove('active');
+        if (window.modalCallback) {
+            window.modalCallback();
+            window.modalCallback = null;
+        }
+    }
+
+    // SELECCIÓN DE OPCIÓN
+    function selectOption(selectedText, selectedBtn) {
+        if (!canAnswer) return;
+        canAnswer = false;
+
+        const current = questions[currentQIndex];
+        const isCorrect = (selectedText === current.correct);
+        const allBtns = document.querySelectorAll('.option-btn');
+
+        // Deshabilitar todos
+        allBtns.forEach(b => b.disabled = true);
+
+        // Multiplicador de racha
+        let multiplier = 1;
+        if (streak >= 4) multiplier = 3;
+        else if (streak === 3) multiplier = 2.5;
+        else if (streak === 2) multiplier = 2;
+        else if (streak === 1) multiplier = 1.5;
+
+        const feedbackPanel = document.getElementById('feedback-panel');
+        const feedbackHeader = document.getElementById('feedback-header');
+        const explanationText = document.getElementById('explanation-text');
+
+        if (isCorrect) {
+            selectedBtn.classList.add('correct');
+            correctAnswersCount++;
+            streak++;
+            if (streak > maxStreak) maxStreak = streak;
+
+            let pointsGained = Math.round(100 * multiplier);
+            if (activeSurprise === 'double') pointsGained *= 2;
+
+            score += pointsGained;
+
+            feedbackPanel.className = 'feedback-panel correct';
+            feedbackHeader.innerHTML = `¡Correcto! +${pointsGained} pts <span style="font-size:0.8rem; font-weight:normal;">(Racha ×${multiplier})</span>`;
+        } else {
+            selectedBtn.classList.add('incorrect');
+            
+            // Resaltar la correcta
+            allBtns.forEach(b => {
+                const txt = current.options[parseInt(b.dataset.index)];
+                if (txt === current.correct) b.classList.add('correct');
+            });
+
+            if (shieldActive) {
+                shieldActive = false;
+                feedbackPanel.className = 'feedback-panel incorrect';
+                feedbackHeader.innerHTML = `¡Incorrecto! 🛡️ ¡El Escudo ha protegido tu racha!`;
+            } else {
+                streak = 0;
+                feedbackPanel.className = 'feedback-panel incorrect';
+                feedbackHeader.innerHTML = `¡Incorrecto! Has perdido la racha.`;
+            }
+        }
+
+        explanationText.innerHTML = parseFormatting(current.exp);
+        feedbackPanel.style.display = 'block';
+
+        // EVALUAR SORPRESAS POST-RESPUESTA (Cofres / Humor)
+        checkPostQuestionSurprise(isCorrect);
+
+        updateStatsDisplay();
+
+        // Mostrar botón siguiente
+        const nextBtn = document.getElementById('btn-next');
+        if (currentQIndex === questions.length - 1) {
+            nextBtn.innerText = "Ver Resultados 🏆";
+        } else {
+            nextBtn.innerText = "Siguiente Pregunta ➔";
+        }
+        nextBtn.style.display = 'flex';
+    }
+
+    // SORPRESAS POST-PREGUNTA
+    function checkPostQuestionSurprise(isCorrect) {
+        const roll = Math.random();
+
+        // 1. Cofre sorpresa tras acierto (~18%)
+        if (isCorrect && roll < 0.18) {
+            surprisesEncountered++;
+            const bonusPoints = [50, 100, 150, 200][Math.floor(Math.random() * 4)];
+            score += bonusPoints;
+            updateStatsDisplay();
+
+            setTimeout(() => {
+                showModal('🎁', '¡Cofre Sorpresa Encontrado!', `¡Has ganado +${bonusPoints} puntos extra por tu agudeza auditiva!`);
+                triggerConfettiSmall();
+            }, 400);
+            return;
+        }
+
+        // 2. Pausa de Humor (17% en acierto, 40% en fallo)
+        const jokeProb = isCorrect ? 0.17 : 0.40;
+        if (Math.random() < jokeProb && usedJokes.length < jokesList.length) {
+            let availableJokes = jokesList.filter(j => !usedJokes.includes(j));
+            if (availableJokes.length > 0) {
+                surprisesEncountered++;
+                const chosenJoke = availableJokes[Math.floor(Math.random() * availableJokes.length)];
+                usedJokes.push(chosenJoke);
+
+                const jokeContainer = document.getElementById('joke-container');
+                jokeContainer.innerHTML = `<div class="joke-card">${parseFormatting(chosenJoke)}</div>`;
+            }
+        }
+    }
+
+    function updateStatsDisplay() {
+        document.getElementById('score-val').innerText = score;
+        let multText = 'x1';
+        if (streak >= 4) multText = 'x3';
+        else if (streak === 3) multText = 'x2.5';
+        else if (streak === 2) multText = 'x2';
+        else if (streak === 1) multText = 'x1.5';
+        
+        document.getElementById('streak-val').innerText = `${multText} (${streak})`;
+    }
+
+    function nextQuestion() {
+        currentQIndex++;
+        if (currentQIndex < questions.length) {
+            loadQuestion();
+        } else {
+            endGame();
+        }
+    }
+
+    // FINALIZAR JUEGO Y MOSTRAR RESULTADOS
+    function endGame() {
+        showScreen('screen-results');
+        document.getElementById('progress-fill').style.width = '100%';
+
+        const accuracy = Math.round((correctAnswersCount / questions.length) * 100);
+
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('stat-accuracy').innerText = `${accuracy}%`;
+        document.getElementById('stat-count').innerText = `${correctAnswersCount}/${questions.length}`;
+        document.getElementById('stat-streak').innerText = maxStreak;
+        document.getElementById('stat-surprises').innerText = surprisesEncountered;
+
+        // Mensajes según nota (5 tramos)
+        const badgeEl = document.getElementById('final-badge');
+        if (accuracy >= 90) {
+            badgeEl.innerHTML = "🧠 <strong>¡Maestro Neuro-Musical!</strong><br>Tu corteza auditiva y tu memoria están en perfecta armonía. ¡Rendimiento brillante!";
+            triggerConfetti();
+        } else if (accuracy >= 75) {
+            badgeEl.innerHTML = "🎼 <strong>¡Excelente Dominio!</strong><br>Demuestras una neuroplasticidad envidiable. ¡Casi perfecto!";
+            triggerConfetti();
+        } else if (accuracy >= 60) {
+            badgeEl.innerHTML = "🎵 <strong>¡Buen Trabajo!</strong><br>Tus neuronas están bien afinadas. Con un poco más de práctica alcanzarás la cima.";
+        } else if (accuracy >= 40) {
+            badgeEl.innerHTML = "🎧 <strong>En Desarrollo</strong><br>El bucle fonológico necesita repasar algunos conceptos clave. ¡Vuelve a intentarlo!";
+        } else {
+            badgeEl.innerHTML = "📻 <strong>Fase de Calentamiento</strong><br>¡No te preocupes! El aprendizaje musical es cuestión de neuroplasticidad y práctica.";
+        }
+    }
+
+    function restartGame() {
+        startGame();
+    }
+
+    // ATAJOS DE TECLADO
+    document.addEventListener('keydown', (e) => {
+        const modal = document.getElementById('surprise-modal');
+        if (modal.classList.contains('active')) {
+            if (e.key === 'Enter') closeModal();
+            return;
+        }
+
+        const gameScreen = document.getElementById('screen-game');
+        if (!gameScreen.classList.contains('active')) return;
+
+        const key = e.key.toUpperCase();
+        if (['A', 'B', 'C', 'D'].includes(key) && canAnswer) {
+            const indexMap = { 'A': 0, 'B': 1, 'C': 2, 'D': 3 };
+            const btns = document.querySelectorAll('.option-btn');
+            const targetBtn = btns[indexMap[key]];
+            if (targetBtn && !targetBtn.disabled && !targetBtn.classList.contains('hidden-5050')) {
+                targetBtn.click();
+            }
+        } else if (e.key === 'Enter') {
+            const nextBtn = document.getElementById('btn-next');
+            if (nextBtn.style.display !== 'none') {
+                nextBtn.click();
+            }
+        }
+    });
+
+    // CANVAS CONFETTI (SIN LIBRERÍAS EXTERNAS)
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function triggerConfetti() {
+        particles = [];
+        const colors = ['#00f2fe', '#4facfe', '#ffd700', '#00e676', '#ff5252'];
+        for (let i = 0; i < 120; i++) {
+            particles.push({
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                vx: (Math.random() - 0.5) * 12,
+                vy: (Math.random() - 0.7) * 12,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                size: Math.random() * 8 + 4,
+                life: 100
+            });
+        }
+        animateConfetti();
+    }
+
+    function triggerConfettiSmall() {
+        particles = [];
+        const colors = ['#ffd700', '#00f2fe'];
+        for (let i = 0; i < 40; i++) {
+            particles.push({
+                x: canvas.width / 2,
+                y: canvas.height / 3,
+                vx: (Math.random() - 0.5) * 8,
+                vy: (Math.random() - 0.5) * 8,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                size: Math.random() * 6 + 3,
+                life: 60
+            });
+        }
+        animateConfetti();
+    }
+
+    function animateConfetti() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p, idx) => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.2; // gravedad
+            p.life--;
+
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (p.life <= 0) particles.splice(idx, 1);
+        });
+
+        if (particles.length > 0) {
+            requestAnimationFrame(animateConfetti);
+        }
+    }
+</script>
+</body>
+</html>
